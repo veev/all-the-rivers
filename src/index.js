@@ -33,45 +33,26 @@ d3.json("./data/merged-rivers-topo-quantized.json", (error, data) => {
 
 	console.log(data);
 
-	const rivers = topojson.feature(data, data.objects["-"]).features
+	// fiter out smaller rivers
+	// first get the geojson features from topojson
+	// then return rivers if their scalerank is smaller than a number
+	const river_features = topojson.feature(data, data.objects["-"]).features
 		.filter( function(d) {
-			if (+d.properties.scalerank < 7) {
+			if (+d.properties.scalerank < 6) {
 				return d;
 			}
 	});
 
-	console.log(rivers);
-
-// let's get an organic list of fips
-// var fips = {};
-// counties.forEach(function(county) { fips[county.id - county.id % 1000] = 1; });
-
-// var states = [];
-// // and merge by fips
-// Object.keys(fips).forEach(function(fip) {
-// var state = topojson.merge(topology, topology.objects.counties.geometries.filter(function(d) { 
-// 	return d.id - d.id % 1000 == fip; }));
-// 	states.push(state);
-// });
-
-// svg_merged.append("g")
-// 	.attr("id", "states")
-// .selectAll(".state").append("path")
-// 	.data(states)
-// .enter().append("path")
-// 	.attr("class", "state")
-// 	.attr("d", function(d) {
-// 	return path(d);
-// });
+	console.log(river_features);
 
 	const polarScale = d3.scaleLinear()
-					.domain([0, rivers.length])
+					.domain([0, river_features.length])
 					.range([0, 360])
 
 	let riverPaths = g.append("g")
 			.attr("id", "rivers")
 		.selectAll("path")
-			.data(rivers)
+			.data(river_features)
 		.enter().append("path")
 			.attr("d", path)
 			.attr("stroke", "blue")
@@ -79,26 +60,6 @@ d3.json("./data/merged-rivers-topo-quantized.json", (error, data) => {
 		.on("mouseover", function(d) {
 			console.log(d.properties.name);
 		});
-
-	// g.append("g")
-
-	// let mergedPaths = g.append("g")
-	// 	.attr("id", "merged-rivers")
-	// 	.selectAll("path")
-	// 	.data(rivers)
-	// 	.enter().append("")
-
-	// riverPaths.append("g")
-	// 		.attr("id", "merged")
-	// 	.selectAll("path")
-	// 		.datum(topojson.mesh(data, data.objects["-"].geometries.filter( function(d, i) {
-	// 			console.log(d, i);
-	// 		}))
-	// 	// .data(rivers_all)
-	// 	.enter().append("path")
-	// 	// .classed("river", true)
-	// 	.attr("d", path)
-	// 	.attr("stroke", "red");
 
 	let default_size = function(d, i) { return 100; };
 	let myExploder = exploder()
@@ -124,27 +85,8 @@ d3.json("./data/merged-rivers-topo-quantized.json", (error, data) => {
 	}
 	addButton('circle', function(d, i) {
 		console.log('adding button');
-		rivers.transition()
+		riverPaths.transition()
 			.duration(500)
 			.call(myExploder.position(circle));
 	});
-
-	// let myExploder = exploder()
-	// 				// use same projection as map
-	// 				.projection(projection)
-	// 				// provide a function to determine the size of each feature
-	// 				.size(function(d, i) { return 40; })
-	// 				// provide a function to determine the
-	// 				// new (grid) positions of the features
-	// 				// -> returns an [x, y] array (in pixels)
-	// 				.position(function(d, i) {
-	// 					let px = Math.max(0, width - (9 * 60))/2;
-	// 					console.log([px + (i%60) * 40, 60 + Math.floor(i/60) * 60]);
-	// 					return [px + (i%60) * 40, 60 + Math.floor(i/60) * 60];
-	// 				});
-	// transition to the grid
-	// rivers
-	// 	.transition()
-	// 	.duration(500)
-	// 	.call(myExploder);
 });
