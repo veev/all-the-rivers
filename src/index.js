@@ -42,42 +42,6 @@ d3.json("./data/merged-rivers-topo-quantized.json", (error, data) => {
 
 	console.log(rivers);
 
-	let river_map = {};
-	rivers.forEach(function(feature) {
-		// trying to make a hashmap where every river num (there are dups)
-		// is the key, and that maps to an array of features
-		// plan is to merge the features with more than one in the array
-		if (!river_map.hasOwnProperty(feature.properties.name)) {
-			//console.log("no key", feature.properties.rivernum)
-			river_map[feature.properties.name] = [];
-			river_map[feature.properties.name].push(feature);
-		} else {
-			//console.log("key dup", river_map[feature.properties.rivernum]);
-			river_map[feature.properties.name].push(feature);
-		}
-	});
-
-	// console.log(river_map);
-
-	let rivers_all = [];
-	// let setRiverNums = d3.set(d3.keys(river_map));
-	// console.log(setRiverNums);
-
-	Object.keys(river_map).forEach(function(key) {
-		//console.log(key);
-		//let tempObjs = topojson.feature(data, data.objects["-"].geometries.filter)
-		let filtered = rivers.filter(function(d, i) {
-			// console.log(i, key, d.properties.name);
-			return d.properties.name === key;
-		});
-		
-		let tempRiver = topojson.mesh(data, filtered);
-		// console.log(tempRiver);
-		rivers_all.push(tempRiver);
-	});
-
-	// console.log(rivers_all);
-
 // let's get an organic list of fips
 // var fips = {};
 // counties.forEach(function(county) { fips[county.id - county.id % 1000] = 1; });
