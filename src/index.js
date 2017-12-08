@@ -11,7 +11,7 @@ let animation;
 const projection = d3.geoNaturalEarth1().scale(width / 4);
 console.log(projection.scale());
 
-function scaleToMatchProjection (scaleFactor, width, height) {
+function scaleToMatchProjection(scaleFactor, width, height) {
 	return d3.geoTransform({
 		point: function(x, y) {
 			this.stream.point( (x - width/2) * scaleFactor + width/2 , (y - height/2) * scaleFactor + height/2);
@@ -61,8 +61,8 @@ d3.json("./data/merged-rivers-topo-quantized.json", (error, data) => {
 			console.log(d.properties.name);
 		});
 
-	let default_size = function(d, i) { return 100; };
-	let myExploder = exploder()
+	const default_size = function(d, i) { return 100; };
+	const myExploder = exploder()
 					.projection(projection)
 					.size(default_size);
 
@@ -75,7 +75,12 @@ d3.json("./data/merged-rivers-topo-quantized.json", (error, data) => {
 				callback.call(this);
 			});
 	}
-
+	
+	// --------------------------
+	//
+	// Circle Plot
+	//
+	// --------------------------
 	function circle(d, i) {
 		let t = polarScale(i);
 		let r = (height/2) * 0.8;
@@ -84,9 +89,38 @@ d3.json("./data/merged-rivers-topo-quantized.json", (error, data) => {
 		return [x, y];
 	}
 	addButton('circle', function(d, i) {
-		console.log('adding button');
 		riverPaths.transition()
 			.duration(500)
 			.call(myExploder.position(circle));
+	});
+
+	// --------------------------
+	//
+	// randomly ordered grid
+	//
+	// --------------------------
+	addButton('random grid', function() {
+		var rand = d3.shuffle(d3.range(river_features.length));
+		riverPaths.transition()
+			.duration(500)
+			.call(
+			myExploder.position(function(d, index) {
+				var i = rand[index];
+				var px = Math.max(0, width - 9*60)/2
+				return [px + (i%10)*60, 70 + Math.floor(i/10)*60];
+			})
+		);
+	});
+
+	// --------------------------
+	//
+	// Realign map
+	//
+	// --------------------------
+	addButton('reset', function() {
+		riverPaths.transition()
+			.duration(500)
+			.attr("d", path)
+			.attr("transform", "translate(0,0)");
 	});
 });
